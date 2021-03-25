@@ -20,6 +20,7 @@ package sdk
 
 type Org struct {
 	ID      uint    `json:"id"`
+	UID     string  `json:"uid"`
 	Name    string  `json:"name"`
 	Address Address `json:"address"`
 }

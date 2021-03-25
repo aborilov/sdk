@@ -142,6 +142,30 @@ func (r *Client) GetOrgByOrgName(ctx context.Context, name string) (Org, error) 
 	return org, err
 }
 
+// GetOrgByOrgUID gets organization by organization uid.
+// It reflects GET /api/orgs/uid/:orgName API call.
+func (r *Client) GetOrgByOrgUID(ctx context.Context, uid string) (Org, error) {
+	var (
+		raw  []byte
+		org  Org
+		code int
+		err  error
+	)
+	if raw, code, err = r.get(ctx, fmt.Sprintf("api/orgs/uid/%s", uid), nil); err != nil {
+		return org, err
+	}
+
+	if code != http.StatusOK {
+		return org, fmt.Errorf("HTTP error %d: returns %s", code, raw)
+	}
+	dec := json.NewDecoder(bytes.NewReader(raw))
+	dec.UseNumber()
+	if err := dec.Decode(&org); err != nil {
+		return org, fmt.Errorf("unmarshal org: %s\n%s", err, raw)
+	}
+	return org, err
+}
+
 // UpdateActualOrg updates current organization.
 // It reflects PUT /api/org API call.
 func (r *Client) UpdateActualOrg(ctx context.Context, org Org) (StatusMessage, error) {
