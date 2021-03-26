@@ -212,10 +212,14 @@ func (r *Client) DeleteOrg(ctx context.Context, oid uint) (StatusMessage, error)
 	var (
 		raw  []byte
 		resp StatusMessage
+		code int
 		err  error
 	)
-	if raw, _, err = r.delete(ctx, fmt.Sprintf("api/orgs/%d", oid)); err != nil {
+	if raw, code, err = r.delete(ctx, fmt.Sprintf("api/orgs/%d", oid)); err != nil {
 		return StatusMessage{}, err
+	}
+	if code == http.StatusNotFound {
+		return StatusMessage{}, ErrNotFound{Message: fmt.Sprintf("HTTP error %d: returns %s", code, raw)}
 	}
 	if err = json.Unmarshal(raw, &resp); err != nil {
 		return StatusMessage{}, err
